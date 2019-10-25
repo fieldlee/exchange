@@ -2,7 +2,7 @@ package match_engine
 
 import (
 	"fmt"
-	"h-exchange_dev_v0.1/libs/types"
+	"h-exchange/libs/types"
 	"log"
 	"math/big"
 	"strconv"
@@ -55,24 +55,24 @@ func ReceiveLimitOrderByHttp(orders <- chan *htypes.OrderParams){
 		marketData := Markets[orderParams.Market]
 
 		marketData.Lock.Lock()
-			//限价单
-			if order.Type == htypes.MARKET_ORDER_TYPE_LIMIT {
-				if order.Side == htypes.ORDER_SIDE_BID {
-					ExecLimitBidOrder(order,marketData)
-				}else if order.Side == htypes.ORDER_SIDE_ASK {
-					ExecLimitAskOrder(order,marketData)
-				}
+		//限价单
+		if order.Type == htypes.MARKET_ORDER_TYPE_LIMIT {
+			if order.Side == htypes.ORDER_SIDE_BID {
+				ExecLimitBidOrder(order,marketData)
+			}else if order.Side == htypes.ORDER_SIDE_ASK {
+				ExecLimitAskOrder(order,marketData)
 			}
+		}
 
-			if order.Left.Cmp(big.NewFloat(0)) == 0 {
-				log.Println("Side: [",order.Side,"] ,Order[",order.Id,"] is Finish")
-				//order finish func,free order
-				//runtime.GC()
-				order = nil
-			}else {
-				log.Println("order Input list")
-				FirstPutOrderToMarket(order,marketData)
-			}
+		if order.Left.Cmp(big.NewFloat(0)) == 0 {
+			log.Println("Side: [",order.Side,"] ,Order[",order.Id,"] is Finish")
+			//order finish func,free order
+			//runtime.GC()
+			order = nil
+		}else {
+			log.Println("order Input list")
+			FirstPutOrderToMarket(order,marketData)
+		}
 
 		marketData.Lock.Unlock()
 
